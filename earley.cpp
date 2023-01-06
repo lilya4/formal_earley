@@ -120,12 +120,13 @@ private:
     return new_situations;
   }
 
-  std::vector<Situation> Complete(size_t j, Situation situation) {
+  std::vector<Situation> Complete(size_t j, Situation complete_situation) {
     std::vector<Situation> new_situations;
-    for (auto &complete_situation: D_[j]['$']) {
-      if (grammar_.P_[complete_situation.rule_idx_].from_ == grammar_.P_[situation.rule_idx_].to_[situation.point_pos_]) {
-        new_situations.emplace_back(situation.rule_idx_, situation.point_pos_ + 1, situation.i_);
-      }
+    if (complete_situation.point_pos_ != grammar_.P_[complete_situation.rule_idx_].to_.size()) {
+      return new_situations;
+    }
+    for (auto &situation: D_[complete_situation.i_][grammar_.P_[complete_situation.rule_idx_].from_]) {
+      new_situations.emplace_back(situation.rule_idx_, situation.point_pos_ + 1, situation.i_);
     }
     for (auto sit: new_situations) {
       D_[j + 1][grammar_.P_[sit.rule_idx_].to_[sit.point_pos_ + 1]].emplace(
